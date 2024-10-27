@@ -34,9 +34,10 @@ void initialize() {
       console.clear();
 
       // print robot location to the brain screen
-      console.printf("X: %f", chassis.getPose().x);           // x
-      console.printf("Y: %f", chassis.getPose().y);           // y
-      console.printf("Heading: %f", chassis.getPose().theta); // heading
+      console.printf("X: %f \n", chassis.getPose().x);           // x
+      console.printf("Y: %f \n", chassis.getPose().y);           // y
+      console.printf("Heading: %f \n", chassis.getPose().theta); // heading
+      
       // delay to save resources
       pros::delay(50);
     }
