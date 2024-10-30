@@ -37,7 +37,7 @@ void initialize() {
       console.printf("X: %f \n", chassis.getPose().x);           // x
       console.printf("Y: %f \n", chassis.getPose().y);           // y
       console.printf("Heading: %f \n", chassis.getPose().theta); // heading
-      
+
       // delay to save resources
       pros::delay(50);
     }
@@ -95,9 +95,11 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-  // move chassis from controller values
-  int left = master.get_analog(ANALOG_LEFT_Y);
-  int right = master.get_analog(ANALOG_RIGHT_Y);
+  while (1) {
+    // move chassis from controller values
+    int left = master.get_analog(ANALOG_LEFT_Y);
+    int right = master.get_analog(ANALOG_RIGHT_Y);
 
-  chassis.tank(left, right, false);
+    chassis.tank(left, right, false);
+  }
 }

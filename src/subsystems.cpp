@@ -2,13 +2,13 @@
 #include "lemlib/chassis/chassis.hpp"
 #include "pros/motor_group.hpp"
 
-pros::MotorGroup left_motors({1, 2, 3});  // left motors on ports 1, 2, 3
-pros::MotorGroup right_motors({4, 5, 6}); // right motors on ports 4, 5, 6
+pros::MotorGroup left_motors({-1, -2, 3}); // left motors on ports 1, 2, 3
+pros::MotorGroup right_motors({4, 5, -6}); // right motors on ports 4, 5, 6
 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&left_motors,               // left motor group
                               &right_motors,              // right motor group
-                              10,                         // 10 inch track width
+                              11.25,                      // 10 inch track width
                               lemlib::Omniwheel::NEW_325, // using new 4" omnis
                               450, // drivetrain rpm is 360
                               2    // horizontal drift is 2 (for now)
@@ -22,7 +22,7 @@ lemlib::OdomSensors sensors(
     nullptr, // horizontal tracking wheel 1
     nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a
              // second one
-    &imu     // inertial sensor
+    nullptr  // inertial sensor
 );
 
 // lateral PID controller
