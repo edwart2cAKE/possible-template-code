@@ -1,7 +1,9 @@
 #include "main.h"
 #include "autos.h"
-#include "lemlib/chassis/chassis.hpp"
+#include "pros/abstract_motor.hpp"
 #include "pros/misc.h"
+#include "pros/rtos.hpp"
+#include "subsystems.h"
 
 /**
  * A callback function for LLEMU's center button.
@@ -10,11 +12,17 @@
  * "I was pressed!" and nothing.
  */
 
-rd::Selector selector({{"Some Auto", &some_auto}});
+// add autos
+rd::Selector selector({{"PID lateral", &pid_lateral_test},
+                       {"PID angular", &pid_angular_test},
+                       {"PID sui", &pid_suite_test},
+                       {"Alliance Stake", &left_side}});
 
 rd::Console console;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
+
+int is_comp{0};
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -27,6 +35,10 @@ void initialize() {
   // set up chassis
   chassis.calibrate();
 
+  // set up intake and hook
+  intake.set_brake_mode(pros::MotorBrake::brake);
+  hook.set_brake_mode(pros::MotorBrake::brake);
+
   // print position to brain screen
   pros::Task screen_task([&]() {
     while (true) {
@@ -37,6 +49,9 @@ void initialize() {
       console.printf("X: %f \n", chassis.getPose().x);           // x
       console.printf("Y: %f \n", chassis.getPose().y);           // y
       console.printf("Heading: %f \n", chassis.getPose().theta); // heading
+
+      // print comp status
+      console.printf("Is Competition %f \n", is_comp);
 
       // delay to save resources
       pros::delay(50);
@@ -78,6 +93,7 @@ void competition_initialize() {
  */
 void autonomous() {
   // Run the selected autonomous function
+  left_side();
   selector.run_auton();
 }
 
@@ -96,10 +112,28 @@ void autonomous() {
  */
 void opcontrol() {
   while (1) {
-    // move chassis from controller values
+    // intake control (R1 / R2)
+    int intake_movement = master.get_digital(pros::E_CONTROLLER_DIGITAL_R2) -
+                          master.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
+    intake.move(127 * intake_movement);
+
+    // hook control (L1 / L2)
+    int hook_movement = master.get_digital(pros::E_CONTROLLER_DIGITAL_L2) -
+                        master.get_digital(pros::E_CONTROLLER_DIGITAL_L1);
+    hook.move(127 * intake_movement);
+
+    // mogo control (down)
+    if (master.get_digital_new_press(DIGITAL_DOWN)) {
+      mogo_state = !mogo_state;
+      mogo.set_value(mogo_state);
+    }
+
+    // chassis control (tank drive)
     int left = master.get_analog(ANALOG_LEFT_Y);
     int right = master.get_analog(ANALOG_RIGHT_Y);
-
     chassis.tank(left, right, false);
+
+    // delay
+    pros::delay(20);
   }
 }

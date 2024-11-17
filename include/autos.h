@@ -4,4 +4,8 @@
 
 extern lemlib::Chassis chassis;
 
-void some_auto();
+void pid_lateral_test();
+void pid_angular_test();
+void pid_suite_test();
+
+void left_side();

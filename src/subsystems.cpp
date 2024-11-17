@@ -1,9 +1,8 @@
 // drivetrain ports
-#include "lemlib/chassis/chassis.hpp"
-#include "pros/motor_group.hpp"
+#include "main.h" // IWYU pragma: keep
 
-pros::MotorGroup left_motors({-1, -2, 3}); // left motors on ports 1, 2, 3
-pros::MotorGroup right_motors({4, 5, -6}); // right motors on ports 4, 5, 6
+pros::MotorGroup left_motors({-15, -19, 18}); // left motors on ports 1, 2, 3
+pros::MotorGroup right_motors({17, 16, -20}); // right motors on ports 4, 5, 6
 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&left_motors,               // left motor group
@@ -22,22 +21,21 @@ lemlib::OdomSensors sensors(
     nullptr, // horizontal tracking wheel 1
     nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a
              // second one
-    nullptr  // inertial sensor
+    &imu  // inertial sensor
 );
 
 // lateral PID controller
 lemlib::ControllerSettings
-    lateral_controller(10,  // proportional gain (kP)
+    lateral_controller(20,  // proportional gain (kP)
                        0,   // integral gain (kI)
-                       3,   // derivative gain (kD)
+                       6,   // derivative gain (kD)
                        3,   // anti windup
-                       1,   // small error range, in inches
-                       100, // small error range timeout, in milliseconds
+                       0.5,   // small error range, in inches
+                       50, // small error range timeout, in milliseconds
                        3,   // large error range, in inches
-                       500, // large error range timeout, in milliseconds
+                       800, // large error range timeout, in milliseconds
                        20   // maximum acceleration (slew)
     );
-
 // angular PID controller
 lemlib::ControllerSettings
     angular_controller(2,   // proportional gain (kP)
@@ -60,3 +58,16 @@ lemlib::ExpoDriveCurve turn_curve(3, 10, 1);
 // create the chassis
 lemlib::Chassis chassis(drivetrain, lateral_controller, angular_controller,
                         sensors, &drive_curve, &turn_curve);
+
+// intake
+pros::Motor intake(7, pros::v5::MotorGears::blue,
+                        pros::v5::MotorEncoderUnits::deg);
+
+
+// hook
+pros::Motor hook(-8, pros::v5::MotorGears::blue,
+                        pros::v5::MotorEncoderUnits::deg);
+
+// mogo
+pros::adi::DigitalOut mogo(1, LOW);
+int mogo_state = LOW;
